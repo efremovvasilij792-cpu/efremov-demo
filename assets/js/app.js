@@ -357,7 +357,7 @@
         <span class="p-series">Серия ${p.series}${p.note ? ' · ' + p.note : ''}</span>
         <h3><a href="product.html?id=${p.id}">${esc(p.name)}</a></h3>
         <div class="p-row">
-          <span class="p-price">${p.hasRange ? '<small>от</small>' : ''}${rub(p.minPrice)}</span>
+          ${p.outOfStock ? '<span class="p-price-na">Нет в наличии</span>' : `<span class="p-price">${p.hasRange ? '<small>от</small>' : ''}${rub(p.minPrice)}</span>`}
           ${colors && colors.length ? `<span class="dots">${colors.map(c => `<i style="background:${c}"></i>`).join('')}</span>` : ''}
         </div>
       </div>
