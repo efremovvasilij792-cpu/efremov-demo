@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=5">
+  <link rel="stylesheet" href="assets/css/style.css?v=6">
 </head>
 <body data-page="product">
 
@@ -25,8 +25,8 @@
   </section>
 </main>
 
-<script src="assets/js/data.js?v=5"></script>
-<script src="assets/js/app.js?v=5"></script>
+<script src="assets/js/data.js?v=6"></script>
+<script src="assets/js/app.js?v=6"></script>
 <script>
   const id = new URLSearchParams(location.search).get('id');
   const p = PRODUCTS.find(x => x.id === id) || PRODUCTS[0];
@@ -47,6 +47,7 @@
         <span class="eyebrow reveal">Серия ${p.series}</span>
         <h1 class="reveal" data-delay="1">${UI.esc(p.name)}</h1>
         <div class="p-price-big reveal" data-delay="2"><span id="price">${UI.rub(price())}</span>${p.note ? `<small>${p.note}</small>` : ''}</div>
+        ${p.outOfStock ? '<span class="stock-out reveal" data-delay="2">Нет в наличии</span>' : ''}
 
         ${p.options ? `
         <div class="p-block reveal" data-delay="2">
@@ -55,10 +56,15 @@
         </div>` : ''}
 
         <div class="p-block reveal" data-delay="3">
+          ${p.outOfStock ? `
+          <div class="p-buy">
+            <button class="btn btn-dark" data-open-form="Сообщите о поступлении: ${UI.esc(p.name)}">Сообщить о поступлении ${ICON.arrow}</button>
+          </div>
+          <p class="muted" style="font-size:14px;margin-top:10px">Сейчас изделия нет в наличии. Оставьте контакты — мастер сообщит, когда оно появится, или предложит изготовить на заказ.</p>` : `
           <div class="p-buy">
             <div class="qty"><button type="button" id="minus" aria-label="Меньше">−</button><span id="qty">1</span><button type="button" id="plus" aria-label="Больше">+</button></div>
             <button class="btn btn-dark" id="add">В корзину ${ICON.arrow}</button>
-          </div>
+          </div>`}
           <button class="btn btn-outline btn-block" style="margin-top:12px" data-open-form="Вопрос по товару: ${UI.esc(p.name)}">Задать вопрос мастеру</button>
           <div class="perks">
             <div class="perk">${ICON.tree}Массив сосны сорта АБ</div>
@@ -104,9 +110,11 @@
     document.getElementById('price').textContent = UI.rub(price());
   });
   const q = document.getElementById('qty');
-  document.getElementById('minus').onclick = () => { qty = Math.max(1, qty - 1); q.textContent = qty; };
-  document.getElementById('plus').onclick = () => { qty += 1; q.textContent = qty; };
-  document.getElementById('add').onclick = () => Cart.add(p.id, sel, qty);
+  if (!p.outOfStock) {
+    document.getElementById('minus').onclick = () => { qty = Math.max(1, qty - 1); q.textContent = qty; };
+    document.getElementById('plus').onclick = () => { qty += 1; q.textContent = qty; };
+    document.getElementById('add').onclick = () => Cart.add(p.id, sel, qty);
+  }
 
   const related = PRODUCTS.filter(x => x.cat === p.cat && x.id !== p.id).concat(PRODUCTS.filter(x => x.hit && x.cat !== p.cat)).slice(0, 4);
   document.getElementById('related').innerHTML = related.map(productCard).join('');

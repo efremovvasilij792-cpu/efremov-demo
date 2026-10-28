@@ -42,7 +42,7 @@
     <header class="header" id="header">
       ${brand}
       <nav class="nav" aria-label="Основное меню">
-        ${NAV.map(([h, t, k]) => `<a href="${h}" class="${k === page || (page === 'product' && k === 'catalog') ? 'active' : ''}">${t}</a>`).join('')}
+        ${NAV.map(([h, t, k]) => `<a href="${h}" class="${k === 'catalog' ? 'nav-cta ' : ''}${k === page || (page === 'product' && k === 'catalog') ? 'active' : ''}">${k === 'catalog' ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>' : ''}${t}</a>`).join('')}
       </nav>
       <div class="header-actions">
         <a class="cart-btn" href="cart.html" aria-label="Корзина">${ICON.cart}<span class="lbl">Корзина</span><span class="cart-count" id="cartCount">0</span></a>
@@ -52,7 +52,7 @@
     </header>
     <div class="mobile-menu" id="mobileMenu">
       <button class="icon-btn mm-close" id="mmClose" aria-label="Закрыть меню">${ICON.close}</button>
-      ${NAV.map(([h, t]) => `<a href="${h}">${t}</a>`).join('')}
+      ${NAV.map(([h, t, k]) => `<a href="${h}"${k === 'catalog' ? ' class="mm-cta"' : ''}>${t}</a>`).join('')}
       <a href="cart.html">Корзина</a>
       <div class="mm-foot"><a href="${S.phoneHref}">${S.phone}</a><a href="mailto:${S.email}">${S.email}</a><span>${S.hours}</span></div>
     </div>`);
@@ -121,6 +121,7 @@
     set(items) { try { localStorage.setItem(KEY, JSON.stringify(items)); } catch {} Cart.badge(); },
     add(id, option, qty = 1) {
       const p = PRODUCTS.find(x => x.id === id);
+      if (p.outOfStock) return; // товара нет в наличии — в корзину не кладём
       const price = option ? p.options.values.find(v => v.name === option).price : p.price;
       const items = Cart.get();
       const key = id + '|' + (option || '');
@@ -346,9 +347,11 @@
     return `
     <article class="p-card reveal">
       <a class="p-media" data-dots-anchor href="product.html?id=${p.id}">
-        ${p.hit ? '<span class="p-badge">Хит продаж</span>' : ''}
+        ${p.outOfStock ? '<span class="p-badge p-badge-out">Нет в наличии</span>' : p.hit ? '<span class="p-badge">Хит продаж</span>' : ''}
         ${media}
-        <span class="p-quick"><button class="btn btn-light btn-block btn-sm" data-quick="${p.id}">В корзину ${ICON.arrow}</button></span>
+        <span class="p-quick">${p.outOfStock
+          ? `<button class="btn btn-light btn-block btn-sm" data-open-form="Сообщите о поступлении: ${esc(p.name)}">Узнать о поступлении</button>`
+          : `<button class="btn btn-light btn-block btn-sm" data-quick="${p.id}">В корзину ${ICON.arrow}</button>`}</span>
       </a>
       <div class="p-info">
         <span class="p-series">Серия ${p.series}${p.note ? ' · ' + p.note : ''}</span>

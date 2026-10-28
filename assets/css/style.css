@@ -823,3 +823,32 @@ body::after {
 }
 .pal-info .btn { margin-top: 12px; }
 @media (min-width: 761px) { .pal-info .btn { display: none; } .pal.active .pal-info .btn { display: inline-flex; } }
+
+/* ===== «Каталог» в меню — главный акцент ===== */
+.nav a.active { background: rgba(27,34,29,.08); color: var(--ink); }
+.nav a.nav-cta {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: inline-flex; align-items: center; gap: 7px; margin: 0 4px; padding: 9px 18px 9px 14px;
+  background: linear-gradient(135deg, #b47a43, #8f5a2c); color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(143, 90, 44, .75), inset 0 1px 0 rgba(255,255,255,.25);
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease), filter .3s;
+}
+.nav a.nav-cta svg { width: 15px; height: 15px; flex: none; }
+.nav a.nav-cta::after { /* блик пробегает по кнопке */
+  content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; z-index: -1;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent);
+  transform: skewX(-20deg); animation: navShine 4.5s ease-in-out 1.5s infinite;
+}
+@keyframes navShine { 0%, 70% { left: -60%; } 100% { left: 130%; } }
+.nav a.nav-cta:hover { background: linear-gradient(135deg, #c0864d, #9a6230); transform: translateY(-1px); box-shadow: 0 12px 24px -10px rgba(143, 90, 44, .85), inset 0 1px 0 rgba(255,255,255,.3); }
+.nav a.nav-cta.active { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #a46d3c, 0 8px 18px -8px rgba(143, 90, 44, .75); }
+.mobile-menu a.mm-cta { color: var(--wood); }
+.mobile-menu a.mm-cta::after { content: ' →'; }
+
+/* ===== Нет в наличии ===== */
+.p-badge.p-badge-out { background: #3a3f3b; color: #fff; }
+.stock-out {
+  display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 6px 14px; border-radius: 999px;
+  background: #ece9e3; color: #6b5a45; font-size: 13px; font-weight: 700;
+}
+.stock-out::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #c0533a; }

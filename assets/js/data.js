@@ -173,7 +173,7 @@ window.PRODUCTS = [
     images: imgs('kashpo', 4), options: paint(6000, 4000)
   },
   {
-    id: 'shpalera', cat: 'blago',
+    id: 'shpalera', cat: 'blago', outOfStock: true, // нет в наличии — убрать строку outOfStock, когда появится
     name: 'Шпалера-пергола ПРОВАНС',
     series: 'Standard', size: 'На заказ', note: 'Цена за 1 кв. м',
     desc: 'Изготавливается на заказ по вашим размерам. Цена указана за 1 кв. м.',
