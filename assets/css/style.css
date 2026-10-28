@@ -29,7 +29,7 @@ body {
   color: var(--ink);
   font: 400 16px/1.6 var(--sans);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overflow-x: clip; /* не hidden: на iPhone hidden заставляет фиксированную шапку дрожать */
 }
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
@@ -764,4 +764,14 @@ body::after {
   .header .brand span { font-size: 15px; overflow: hidden; text-overflow: ellipsis; }
   .header-actions { gap: 6px; flex: none; }
   .header .cart-btn, .header .icon-btn { width: 42px; height: 42px; }
+}
+
+/* Кнопка меню: две полоски точными блоками — ровно по центру на любом экране */
+.bars { display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 18px; height: 18px; }
+.bars i { display: block; width: 18px; height: 2px; border-radius: 2px; background: currentColor; }
+.icon-btn, .cart-btn { -webkit-appearance: none; appearance: none; -webkit-tap-highlight-color: transparent; }
+@media (max-width: 360px) {
+  .brand img { width: 36px; height: 36px; }
+  .header .brand span { font-size: 13.5px; letter-spacing: -.03em; }
+  .header .cart-btn, .header .icon-btn { width: 40px; height: 40px; }
 }

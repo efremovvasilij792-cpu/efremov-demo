@@ -47,7 +47,7 @@
       <div class="header-actions">
         <a class="cart-btn" href="cart.html" aria-label="Корзина">${ICON.cart}<span class="lbl">Корзина</span><span class="cart-count" id="cartCount">0</span></a>
         <a class="icon-btn phone" href="${S.phoneHref}" aria-label="Позвонить">${ICON.phone}</a>
-        <button class="icon-btn burger" id="burger" aria-label="Меню">${ICON.menu}</button>
+        <button class="icon-btn burger" id="burger" aria-label="Меню"><span class="bars"><i></i><i></i></span></button>
       </div>
     </header>
     <div class="mobile-menu" id="mobileMenu">
@@ -97,7 +97,9 @@
   let lastY = scrollY, travel = 0, headerTick = false;
   const onHeader = () => {
     headerTick = false;
-    const y = Math.max(0, scrollY);
+    // iPhone «пружинит» за краями страницы — такие сдвиги не считаем прокруткой
+    const maxY = document.documentElement.scrollHeight - innerHeight;
+    const y = Math.min(Math.max(0, scrollY), Math.max(0, maxY));
     const d = y - lastY;
     lastY = y;
     header.classList.toggle('is-solid', y > 40 || page !== 'home');
