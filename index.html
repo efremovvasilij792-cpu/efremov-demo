@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=3">
+  <link rel="stylesheet" href="assets/css/style.css?v=4">
   <link rel="preload" as="image" href="assets/img/site/bg3.webp">
 </head>
 <body data-page="home">
@@ -66,7 +66,7 @@
         </div>
       </div>
       <div class="intro-media">
-        <div class="zoom-frame clip-reveal" data-progress><img src="assets/img/site/bg5.webp" alt="Отдых в саду на деревянном шезлонге" loading="lazy"></div>
+        <div class="zoom-frame clip-reveal"><img src="assets/img/site/bg5.webp" alt="Отдых в саду на деревянном шезлонге" loading="lazy"></div>
         <div class="intro-badge reveal" data-delay="2"><strong>2023</strong><span>год основания<br>мастерской</span></div>
       </div>
     </div>
@@ -79,7 +79,7 @@
         <div><span class="eyebrow reveal">Три уровня</span><h2 class="reveal" data-delay="1">Выберите свою серию</h2></div>
         <p class="lead reveal" data-delay="2" style="max-width:440px">От проверенных типовых решений до проектов полного цикла — с одной и той же гарантией качества.</p>
       </div>
-      <div class="series-grid">
+      <div class="series-grid" data-swipe="mobile">
         <a class="series-card reveal" href="catalog.html">
           <img src="assets/img/site/bg2.webp" alt="" loading="lazy">
           <span class="tag">Standard</span>
@@ -121,29 +121,29 @@
     <div class="container">
       <div class="section-head">
         <div><span class="eyebrow reveal">Палитра</span><h2 class="reveal" data-delay="1">Один стиль — четыре характера</h2></div>
-        <p class="lead reveal" data-delay="2" style="max-width:420px">Наведите на цвет, чтобы увидеть его в саду. Любое изделие серии Standard можно заказать в каждом из них.</p>
+        <p class="lead reveal" data-delay="2" style="max-width:420px">Наведите на цвет или пролистайте, чтобы увидеть его в саду. Любое изделие серии Standard можно заказать в каждом из них.</p>
       </div>
-      <div class="palette reveal" id="palette">
-        <a class="pal active" href="catalog.html" style="--c:#f4f1ea">
+      <div class="palette reveal" id="palette" data-swipe="mobile">
+        <div class="pal active" style="--c:#f4f1ea">
           <img src="assets/img/products/classic-1.webp" alt="Белая арка-пергола" loading="lazy">
-          <div class="pal-info"><i></i><div><b>Белый</b><span>Светлый, праздничный, прованс. Идеален для свадеб и цветущих садов.</span></div></div>
+          <div class="pal-info"><i></i><div><b>Белый</b><span>Светлый, праздничный, прованс. Идеален для свадеб и цветущих садов.</span><a class="btn btn-light btn-sm" href="catalog.html">Смотреть в каталоге</a></div></div>
           <span class="pal-v">Белый</span>
-        </a>
-        <a class="pal" href="catalog.html" style="--c:#3d4043">
+        </div>
+        <div class="pal" style="--c:#3d4043">
           <img src="assets/img/products/arka110-1.webp" alt="Графитовая арка-пергола" loading="lazy">
-          <div class="pal-info"><i></i><div><b>Графит</b><span>Модный, строгий, современный. Отлично смотрится у домов в стиле барнхаус.</span></div></div>
+          <div class="pal-info"><i></i><div><b>Графит</b><span>Модный, строгий, современный. Отлично смотрится у домов в стиле барнхаус.</span><a class="btn btn-light btn-sm" href="catalog.html">Смотреть в каталоге</a></div></div>
           <span class="pal-v">Графит</span>
-        </a>
-        <a class="pal" href="catalog.html" style="--c:#6b3f2a">
+        </div>
+        <div class="pal" style="--c:#6b3f2a">
           <img src="assets/img/products/shpalera-2.webp" alt="Шпалера цвета палисандр" loading="lazy">
-          <div class="pal-info"><i></i><div><b>Палисандр</b><span>Глубокий тёплый оттенок благородного дерева. Уютно и классически.</span></div></div>
+          <div class="pal-info"><i></i><div><b>Палисандр</b><span>Глубокий тёплый оттенок благородного дерева. Уютно и классически.</span><a class="btn btn-light btn-sm" href="catalog.html">Смотреть в каталоге</a></div></div>
           <span class="pal-v">Палисандр</span>
-        </a>
-        <a class="pal" href="catalog.html" style="--c:#d9b98a">
+        </div>
+        <div class="pal" style="--c:#d9b98a">
           <img src="assets/img/products/besedka4-1.webp" alt="Беседка без покраски" loading="lazy">
-          <div class="pal-info"><i></i><div><b>Натуральный</b><span>Без покраски — живая текстура сосны. Покрасите в свой цвет RAL.</span></div></div>
+          <div class="pal-info"><i></i><div><b>Натуральный</b><span>Без покраски — живая текстура сосны. Покрасите в свой цвет RAL.</span><a class="btn btn-light btn-sm" href="catalog.html">Смотреть в каталоге</a></div></div>
           <span class="pal-v">Натуральный</span>
-        </a>
+        </div>
       </div>
     </div>
   </section>
@@ -172,7 +172,7 @@
           <button id="pfNext" aria-label="Вперёд"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>
         </div>
       </div>
-      <div class="pf-track reveal" id="pfTrack"></div>
+      <div class="pf-track reveal" id="pfTrack" data-swipe="mobile"></div>
       <div style="margin-top:32px"><a class="btn btn-outline" href="portfolio.html">Смотреть все работы</a></div>
     </div>
   </section>
@@ -180,7 +180,7 @@
   <!-- ===== Подход ===== -->
   <section class="section" style="padding-top:0">
     <div class="container approach">
-      <div class="zoom-frame clip-reveal" data-progress><img src="assets/img/site/about.webp" alt="Табличка мастерской В.Ю. Ефремова" loading="lazy"></div>
+      <div class="zoom-frame clip-reveal"><img src="assets/img/site/about.webp" alt="Табличка мастерской В.Ю. Ефремова" loading="lazy"></div>
       <div>
         <span class="eyebrow reveal">Наш подход</span>
         <h2 class="reveal" data-delay="1">Архитектура с личной подписью</h2>
@@ -208,7 +208,7 @@
   </section>
 
   <!-- ===== Призыв ===== -->
-  <section class="cta" data-progress>
+  <section class="cta">
     <img src="assets/img/site/bg4.webp" alt="" loading="lazy">
     <div>
       <span class="eyebrow reveal" style="color:#fff">Ваш сад ждёт</span>
@@ -222,8 +222,8 @@
   </section>
 </main>
 
-<script src="assets/js/data.js?v=3"></script>
-<script src="assets/js/app.js?v=3"></script>
+<script src="assets/js/data.js?v=4"></script>
+<script src="assets/js/app.js?v=4"></script>
 <script>
   document.getElementById('hits').innerHTML = PRODUCTS.filter(p => p.hit).map(productCard).join('');
 
@@ -237,13 +237,12 @@
   document.getElementById('pfPrev').onclick = () => track.scrollBy({ left: -step(), behavior: 'smooth' });
   document.getElementById('pfNext').onclick = () => track.scrollBy({ left: step(), behavior: 'smooth' });
 
-  // палитра: раскрывается панель под курсором (на телефоне — по нажатию)
+  // палитра: на компьютере раскрывается панель под курсором, на телефоне карточки просто листаются
   const pals = document.querySelectorAll('.pal');
   const activate = el => pals.forEach(p => p.classList.toggle('active', p === el));
-  pals.forEach(p => {
-    p.addEventListener('mouseenter', () => activate(p));
-    p.addEventListener('click', e => { if (!p.classList.contains('active')) { e.preventDefault(); activate(p); } });
-  });
+  if (matchMedia('(hover: hover) and (min-width: 761px)').matches) {
+    pals.forEach(p => p.addEventListener('mouseenter', () => activate(p)));
+  }
 
   document.getElementById('reviews').innerHTML = REVIEWS.map((r, i) => `
     <div class="review reveal" data-delay="${i % 2}">

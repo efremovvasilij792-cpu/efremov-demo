@@ -334,14 +334,20 @@
   window.quickAdd = quickAdd;
 
   /* ---------- Карточка товара ---------- */
+  // На телефоне и планшете фото в карточке листаются пальцем, на компьютере — меняются при наведении
+  const touchLayout = () => matchMedia('(hover: none), (max-width: 900px)').matches;
   window.productCard = p => {
     const colors = p.options && p.options.values.map(v => COLOR_SWATCH[v.name.toLowerCase()]).filter(Boolean);
+    const slides = p.images.slice(0, 5);
+    const media = touchLayout() && slides.length > 1
+      ? `<span class="p-slides" data-swipe>${slides.map((src, i) => `<img src="${src}" alt="${i ? '' : esc(p.name)}" loading="lazy">`).join('')}</span>`
+      : `<img src="${p.images[0]}" alt="${esc(p.name)}" loading="lazy">
+        ${p.images[1] ? `<img class="alt" src="${p.images[1]}" alt="" loading="lazy">` : ''}`;
     return `
     <article class="p-card reveal">
-      <a class="p-media" href="product.html?id=${p.id}">
+      <a class="p-media" data-dots-anchor href="product.html?id=${p.id}">
         ${p.hit ? '<span class="p-badge">Хит продаж</span>' : ''}
-        <img src="${p.images[0]}" alt="${esc(p.name)}" loading="lazy">
-        ${p.images[1] ? `<img class="alt" src="${p.images[1]}" alt="" loading="lazy">` : ''}
+        ${media}
         <span class="p-quick"><button class="btn btn-light btn-block btn-sm" data-quick="${p.id}">В корзину ${ICON.arrow}</button></span>
       </a>
       <div class="p-info">
@@ -369,7 +375,40 @@
   });
 
   /* ---------- Анимации прокрутки ---------- */
+  /* ---------- Листалки с кружками ---------- */
+  // Любой контейнер с data-swipe листается пальцем; под ним появляются кружки,
+  // текущий кадр подсвечен, нажатие на кружок перелистывает.
+  window.initSwipers = (root = document) => {
+    $$('[data-swipe]:not([data-swipe-ready])', root).forEach(track => {
+      track.dataset.swipeReady = '1';
+      const items = [...track.children];
+      if (items.length < 2) return;
+      const dots = document.createElement('div');
+      dots.className = 'swipe-dots' + (track.dataset.swipe === 'mobile' ? ' mobile-only' : '');
+      dots.innerHTML = items.map((_, i) => `<button type="button" aria-label="Кадр ${i + 1}" class="${i ? '' : 'on'}"></button>`).join('');
+      (track.closest('[data-dots-anchor]') || track).after(dots);
+      const step = () => items[1].offsetLeft - items[0].offsetLeft || track.clientWidth;
+      let current = 0;
+      const update = () => {
+        const i = Math.max(0, Math.min(items.length - 1, Math.round(track.scrollLeft / step())));
+        if (i === current) return;
+        dots.children[current].classList.remove('on');
+        dots.children[i].classList.add('on');
+        current = i;
+      };
+      track.addEventListener('scroll', update, { passive: true });
+      dots.addEventListener('click', e => {
+        const b = e.target.closest('button');
+        if (!b) return;
+        e.preventDefault();
+        const i = [...dots.children].indexOf(b);
+        track.scrollTo({ left: i * step(), behavior: 'smooth' });
+      });
+    });
+  };
+
   window.initReveal = (root = document) => {
+    initSwipers(root);
     const io = new IntersectionObserver(es => es.forEach(en => {
       if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
     }), { threshold: .14, rootMargin: '0px 0px -6% 0px' });
