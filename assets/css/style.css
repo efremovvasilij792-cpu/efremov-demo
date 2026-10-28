@@ -124,7 +124,9 @@ p { margin: 0; }
   width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: #fff;
   display: grid; place-items: center; transition: background .3s, transform .3s var(--ease);
 }
-.icon-btn:hover { background: var(--green); transform: rotate(-8deg); }
+@media (hover: hover) { .icon-btn:hover { background: var(--green); transform: rotate(-8deg); } }
+.icon-btn { padding: 0; line-height: 0; }
+.icon-btn svg { display: block; }
 .icon-btn svg { width: 18px; height: 18px; }
 .burger { display: none; }
 
@@ -754,4 +756,12 @@ body::after {
   .p-card .p-media { border-radius: 16px; }
   .contact-card { padding: 20px; border-radius: 18px; }
   .map, .map iframe { min-height: 320px; }
+}
+@media (max-width: 640px) {
+  .header { padding: 8px 8px 8px 10px; gap: 10px; }
+  .brand { gap: 10px; }
+  .brand img { width: 40px; height: 40px; border-radius: 11px; }
+  .header .brand span { font-size: 15px; overflow: hidden; text-overflow: ellipsis; }
+  .header-actions { gap: 6px; flex: none; }
+  .header .cart-btn, .header .icon-btn { width: 42px; height: 42px; }
 }

@@ -92,15 +92,22 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>`);
 
   const header = $('#header');
-  let lastY = 0;
+  // Шапка прячется при прокрутке вниз и плавно возвращается при прокрутке вверх.
+  // «Запас хода» не даёт ей дёргаться от мелких движений пальца на телефоне.
+  let lastY = scrollY, travel = 0, headerTick = false;
   const onHeader = () => {
-    const y = scrollY;
-    header.classList.toggle('is-solid', y > 40 || page !== 'home');
-    header.classList.toggle('is-hidden', y > 500 && y > lastY + 4);
-    if (y < lastY - 4 || y < 500) header.classList.remove('is-hidden');
+    headerTick = false;
+    const y = Math.max(0, scrollY);
+    const d = y - lastY;
     lastY = y;
+    header.classList.toggle('is-solid', y > 40 || page !== 'home');
+    if (y < 200) { travel = 0; header.classList.remove('is-hidden'); return; }
+    // копим путь в одном направлении, при смене направления начинаем заново
+    travel = (Math.sign(d) === Math.sign(travel)) ? travel + d : d;
+    if (travel > 60) header.classList.add('is-hidden');
+    else if (travel < -40) header.classList.remove('is-hidden');
   };
-  addEventListener('scroll', onHeader, { passive: true });
+  addEventListener('scroll', () => { if (!headerTick) { headerTick = true; requestAnimationFrame(onHeader); } }, { passive: true });
   onHeader();
   $('#burger').onclick = () => $('#mobileMenu').classList.add('open');
   $('#mmClose').onclick = () => $('#mobileMenu').classList.remove('open');
