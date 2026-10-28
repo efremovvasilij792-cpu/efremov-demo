@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Каталог — арки, перголы, беседки | Мастерская В.Ю. Ефремова</title>
+  <meta name="description" content="Каталог Мастерской В.Ю. Ефремова: арки-перголы, перголы, беседки, садовая мебель, кашпо, шпалеры. Цены, цвета, доставка по Москве и МО.">
+  <link rel="icon" href="assets/img/site/logo.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="catalog">
+
+<main>
+  <div class="hero-wrap">
+    <section class="hero page-hero">
+      <div class="hero-media"><div class="kb"><img src="assets/img/site/bg1.webp" alt="" style="object-position:50% 55%"></div></div>
+      <div class="hero-content">
+        <h1><span class="split-line"><span>Каталог изделий</span></span></h1>
+        <p class="reveal" data-delay="2">Арки, перголы, беседки и садовая мебель из массива сосны. Четыре цвета на выбор: белый, графит, палисандр и натуральное дерево.</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="section" style="padding-top:56px">
+    <div class="container">
+      <div class="filters reveal" id="filters"></div>
+      <div id="catalog"></div>
+    </div>
+  </section>
+
+  <section class="cta" data-progress>
+    <img src="assets/img/site/bg4.webp" alt="" loading="lazy">
+    <div>
+      <h2 class="reveal">Не нашли нужный размер?</h2>
+      <p class="reveal" data-delay="1">Большинство изделий изготовим по вашим размерам и в любом цвете RAL. Расскажите о задаче — предложим решение.</p>
+      <div class="hero-buttons reveal" data-delay="2">
+        <a class="btn btn-light" href="#" data-open-form="Нужен индивидуальный размер">Заполнить форму обратной связи</a>
+        <a class="btn btn-dark" href="tel:+79269628022">Позвонить мастеру</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const filters = document.getElementById('filters');
+  const out = document.getElementById('catalog');
+  const hits = PRODUCTS.filter(p => p.hit);
+  const tabs = [{ id: 'all', name: 'Все изделия', n: PRODUCTS.length }, { id: 'hits', name: 'Хиты продаж', n: hits.length },
+    ...CATEGORIES.map(c => ({ ...c, n: PRODUCTS.filter(p => p.cat === c.id).length }))];
+
+  function render(tab) {
+    filters.innerHTML = tabs.map(t => `<button class="chip ${t.id === tab ? 'active' : ''}" data-tab="${t.id}">${t.name}<span class="n">${t.n}</span></button>`).join('');
+    let html = '';
+    if (tab === 'all') {
+      const word = n => n % 10 === 1 && n % 100 !== 11 ? 'изделие' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'изделия' : 'изделий';
+      html = CATEGORIES.map(c => { const n = PRODUCTS.filter(p => p.cat === c.id).length; return `
+        <h2 class="cat-title reveal">${c.name}<span>${n} ${word(n)}</span></h2>
+        <div class="products-grid">${PRODUCTS.filter(p => p.cat === c.id).map(productCard).join('')}</div>`; }).join('');
+    } else {
+      const list = tab === 'hits' ? hits : PRODUCTS.filter(p => p.cat === tab);
+      html = `<div class="products-grid">${list.map(productCard).join('')}</div>`;
+    }
+    out.innerHTML = html;
+    initReveal(out);
+  }
+  filters.addEventListener('click', e => {
+    const b = e.target.closest('[data-tab]');
+    if (!b) return;
+    history.replaceState(null, '', b.dataset.tab === 'all' ? 'catalog.html' : '#' + b.dataset.tab);
+    render(b.dataset.tab);
+  });
+  const initial = location.hash.slice(1);
+  render(tabs.some(t => t.id === initial) ? initial : 'all');
+</script>
+</body>
+</html>

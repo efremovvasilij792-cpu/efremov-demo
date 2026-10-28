@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Портфолио — наши работы | Мастерская В.Ю. Ефремова</title>
+  <meta name="description" content="Более 300 реализованных проектов: беседки, арки, перголы из массива в Москве и Московской области.">
+  <link rel="icon" href="assets/img/site/logo.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="portfolio">
+
+<main>
+  <div class="hero-wrap">
+    <section class="hero page-hero">
+      <div class="hero-media"><div class="kb"><img src="assets/img/site/bg6.webp" alt="" style="object-position:50% 40%"></div></div>
+      <div class="hero-content">
+        <h1><span class="split-line"><span>Портфолио</span></span></h1>
+        <p class="reveal" data-delay="2">Более 300 реализованных проектов. Вот некоторые из них — от классических беседок до эксклюзивных пергол.</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="section" style="padding-top:56px">
+    <div class="container">
+      <div class="filters reveal" id="pfFilters"></div>
+      <div class="masonry" id="pfGrid"></div>
+    </div>
+  </section>
+
+  <section class="cta" data-progress>
+    <img src="assets/img/site/bg5.webp" alt="" loading="lazy">
+    <div>
+      <h2 class="reveal">Готовы создать свою точку притяжения?</h2>
+      <p class="reveal" data-delay="1">Расскажите о своём участке — подберём изделие или спроектируем новое.</p>
+      <div class="hero-buttons reveal" data-delay="2">
+        <a class="btn btn-light" href="#" data-open-form>Заполнить форму обратной связи</a>
+        <a class="btn btn-dark" href="catalog.html">Выбрать из каталога</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const series = ['Все', ...new Set(PORTFOLIO.map(w => w.series))];
+  const f = document.getElementById('pfFilters');
+  const g = document.getElementById('pfGrid');
+  function render(s) {
+    f.innerHTML = series.map(x => `<button class="chip ${x === s ? 'active' : ''}" data-s="${x}">${x}</button>`).join('');
+    g.innerHTML = PORTFOLIO.filter(w => s === 'Все' || w.series === s).map((w, i) => `
+      <div class="pf-item reveal" data-delay="${i % 3}" data-lightbox="${w.img}" data-caption="${UI.esc(w.title)}">
+        <div class="pf-img"><img src="${w.img}" alt="${UI.esc(w.title)}" loading="lazy"></div>
+        <p>${w.title}</p><span>Серия «${w.series}»</span>
+      </div>`).join('');
+    initReveal(g);
+  }
+  f.addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (b) render(b.dataset.s); });
+  render('Все');
+</script>
+</body>
+</html>

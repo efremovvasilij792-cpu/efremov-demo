@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Товар | Мастерская В.Ю. Ефремова</title>
+  <link rel="icon" href="assets/img/site/logo.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="product">
+
+<main class="product-page">
+  <div class="container" id="product"></div>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head"><div><span class="eyebrow">Ещё из каталога</span><h2 style="margin-top:14px">Вам может понравиться</h2></div>
+        <a class="btn btn-outline" href="catalog.html">Весь каталог</a></div>
+      <div class="products-grid" id="related"></div>
+    </div>
+  </section>
+</main>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const id = new URLSearchParams(location.search).get('id');
+  const p = PRODUCTS.find(x => x.id === id) || PRODUCTS[0];
+  const cat = CATEGORIES.find(c => c.id === p.cat);
+  document.title = p.name + ' — купить | Мастерская В.Ю. Ефремова';
+  let sel = p.options ? p.options.values[0].name : null;
+  let qty = 1;
+  const price = () => p.options ? p.options.values.find(v => v.name === sel).price : p.price;
+
+  document.getElementById('product').innerHTML = `
+    <nav class="crumbs"><a href="index.html">Главная</a>/<a href="catalog.html">Каталог</a>/<a href="catalog.html#${cat.id}">${cat.name}</a>/<span>${UI.esc(p.name)}</span></nav>
+    <div class="product">
+      <div class="gallery reveal">
+        <div class="thumbs">${p.images.map((src, i) => `<button class="${i ? '' : 'active'}" data-i="${i}" aria-label="Фото ${i + 1}"><img src="${src}" alt=""></button>`).join('')}</div>
+        <div class="main-img" id="mainImg"><img src="${p.images[0]}" alt="${UI.esc(p.name)}"></div>
+      </div>
+      <div class="p-details">
+        <span class="eyebrow reveal">Серия ${p.series}</span>
+        <h1 class="reveal" data-delay="1">${UI.esc(p.name)}</h1>
+        <div class="p-price-big reveal" data-delay="2"><span id="price">${UI.rub(price())}</span>${p.note ? `<small>${p.note}</small>` : ''}</div>
+
+        ${p.options ? `
+        <div class="p-block reveal" data-delay="2">
+          <div class="opt-label">${p.options.label}: <b id="selName">${UI.esc(sel)}</b></div>
+          <div class="opts" id="opts">${optButtons(p, sel)}</div>
+        </div>` : ''}
+
+        <div class="p-block reveal" data-delay="3">
+          <div class="p-buy">
+            <div class="qty"><button type="button" id="minus" aria-label="Меньше">−</button><span id="qty">1</span><button type="button" id="plus" aria-label="Больше">+</button></div>
+            <button class="btn btn-dark" id="add">В корзину ${ICON.arrow}</button>
+          </div>
+          <button class="btn btn-outline btn-block" style="margin-top:12px" data-open-form="Вопрос по товару: ${UI.esc(p.name)}">Задать вопрос мастеру</button>
+          <div class="perks">
+            <div class="perk">${ICON.tree}Массив сосны сорта АБ</div>
+            <div class="perk">${ICON.truck}Доставка по Москве и МО</div>
+            <div class="perk">${ICON.tool}Сборка и монтаж под ключ</div>
+            <div class="perk">${ICON.shield}Гарантия мастерской</div>
+          </div>
+        </div>
+
+        <div class="p-block desc reveal">
+          <div class="opt-label">Описание</div>
+          <p><b>Размер:</b> ${p.size}</p>
+          <p>${p.desc}</p>
+          <p class="muted">${STANDARD_TEXT}</p>
+        </div>
+      </div>
+    </div>`;
+
+  const main = document.getElementById('mainImg');
+  const mainImg = main.querySelector('img');
+  document.querySelector('.thumbs').addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    document.querySelectorAll('.thumbs button').forEach(x => x.classList.toggle('active', x === b));
+    mainImg.classList.add('fade');
+    setTimeout(() => { mainImg.src = p.images[b.dataset.i]; mainImg.onload = () => mainImg.classList.remove('fade'); }, 200);
+  });
+  // увеличение фото под курсором
+  main.addEventListener('mousemove', e => {
+    const r = main.getBoundingClientRect();
+    mainImg.style.transformOrigin = `${(e.clientX - r.left) / r.width * 100}% ${(e.clientY - r.top) / r.height * 100}%`;
+  });
+  main.addEventListener('click', () => main.classList.toggle('zoomed'));
+  main.addEventListener('mouseleave', () => main.classList.remove('zoomed'));
+
+  const opts = document.getElementById('opts');
+  if (opts) opts.addEventListener('click', e => {
+    const b = e.target.closest('[data-opt]');
+    if (!b) return;
+    sel = b.dataset.opt;
+    opts.querySelectorAll('.opt').forEach(o => o.classList.toggle('active', o === b));
+    document.getElementById('selName').textContent = sel;
+    document.getElementById('price').textContent = UI.rub(price());
+  });
+  const q = document.getElementById('qty');
+  document.getElementById('minus').onclick = () => { qty = Math.max(1, qty - 1); q.textContent = qty; };
+  document.getElementById('plus').onclick = () => { qty += 1; q.textContent = qty; };
+  document.getElementById('add').onclick = () => Cart.add(p.id, sel, qty);
+
+  const related = PRODUCTS.filter(x => x.cat === p.cat && x.id !== p.id).concat(PRODUCTS.filter(x => x.hit && x.cat !== p.cat)).slice(0, 4);
+  document.getElementById('related').innerHTML = related.map(productCard).join('');
+</script>
+</body>
+</html>

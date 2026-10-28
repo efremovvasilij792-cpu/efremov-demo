@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Корзина и оформление заказа | Мастерская В.Ю. Ефремова</title>
+  <link rel="icon" href="assets/img/site/logo.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="cart">
+
+<main class="cart-page">
+  <div class="container">
+    <h1 style="font-size:clamp(40px,5vw,72px);line-height:1.15;margin-bottom:28px">Корзина</h1>
+    <div class="stepper" id="stepper">
+      <div data-s="1"><i>1</i>Корзина</div>
+      <div data-s="2"><i>2</i>Контактные данные</div>
+      <div data-s="3"><i>3</i>Подтверждение</div>
+    </div>
+    <div id="view"></div>
+  </div>
+</main>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  const { field, checkbox, rub, esc } = UI;
+  const view = document.getElementById('view');
+  const ORDER_KEY = 'efremov_checkout_v1';
+  let state = { step: 1, agreeOffer: false, agreePd: false, contact: {} };
+  try { Object.assign(state.contact, JSON.parse(sessionStorage.getItem(ORDER_KEY)) || {}); } catch {}
+
+  const product = id => PRODUCTS.find(p => p.id === id);
+  const swatch = n => n && COLOR_SWATCH[n.toLowerCase()];
+  const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 10 || h >= 20) ? b : c; };
+
+  function setStep(s) {
+    state.step = s;
+    document.querySelectorAll('#stepper div').forEach(d => {
+      const n = +d.dataset.s;
+      d.className = n === s ? 'on' : n < s ? 'done' : '';
+    });
+    render();
+    scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function summary(extra = '') {
+    const items = Cart.get();
+    const n = Cart.count();
+    return `
+      <aside class="panel summary">
+        <h3>Ваш заказ</h3>
+        <div class="sum-row"><span>${n} ${plural(n, 'товар', 'товара', 'товаров')}</span><span>${rub(Cart.total())}</span></div>
+        <div class="sum-row"><span>Доставка и монтаж</span><span>по договорённости</span></div>
+        <div class="sum-total"><span>Итого</span><b>${rub(Cart.total())}</b></div>
+        ${extra}
+      </aside>`;
+  }
+
+  function lines(editable) {
+    return Cart.get().map(i => {
+      const p = product(i.id);
+      if (!p) return '';
+      const sw = swatch(i.option);
+      return `
+        <div class="line-item" data-key="${esc(i.key)}">
+          <a href="product.html?id=${p.id}"><img src="${p.images[0]}" alt=""></a>
+          <div>
+            <h4><a href="product.html?id=${p.id}">${esc(p.name)}</a></h4>
+            ${i.option ? `<span class="var">${sw ? `<i style="background:${sw}"></i>` : ''}${esc(i.option)}</span>` : (p.note ? `<span class="var">${p.note}</span>` : '')}
+            <div class="unit">${rub(i.price)} за шт.</div>
+          </div>
+          <div class="right">
+            <span class="lp">${rub(i.price * i.qty)}</span>
+            ${editable
+              ? `<div class="qty sm"><button data-act="minus" aria-label="Меньше">−</button><span>${i.qty}</span><button data-act="plus" aria-label="Больше">+</button></div>
+                 <button class="remove" data-act="remove">Удалить</button>`
+              : `<span class="muted" style="font-size:14px">× ${i.qty}</span>`}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function render() {
+    const items = Cart.get();
+    if (!items.length && state.step < 4) {
+      view.innerHTML = `
+        <div class="panel empty reveal">
+          ${ICON.bag}
+          <h3>В корзине пока пусто</h3>
+          <p class="muted">Выберите арку, перголу или беседку в каталоге — и оформите заказ за пару минут.</p>
+          <a class="btn btn-dark" href="catalog.html">Перейти в каталог ${ICON.arrow}</a>
+        </div>`;
+      document.getElementById('stepper').style.display = 'none';
+      initReveal(view);
+      return;
+    }
+    document.getElementById('stepper').style.display = '';
+
+    if (state.step === 1) {
+      view.innerHTML = `
+        <div class="cart-layout">
+          <div class="panel">${lines(true)}</div>
+          ${summary(`
+            <div class="checks" id="checks">
+              ${checkbox('offer', 'Я согласен(на) с условиями <a href="oferta.html" target="_blank">публичной оферты</a>')}
+              ${checkbox('pd', 'Даю согласие на <a href="politika.html" target="_blank">обработку персональных данных</a>')}
+            </div>
+            <button class="btn btn-dark btn-block" id="toStep2">Оформить заказ ${ICON.arrow}</button>
+            <p class="note" style="margin-top:12px;text-align:center">Чтобы продолжить, отметьте обе галочки</p>`)}
+        </div>`;
+      const checks = document.getElementById('checks');
+      checks.querySelector('[name=offer]').checked = state.agreeOffer;
+      checks.querySelector('[name=pd]').checked = state.agreePd;
+      checks.addEventListener('change', () => {
+        state.agreeOffer = checks.querySelector('[name=offer]').checked;
+        state.agreePd = checks.querySelector('[name=pd]').checked;
+      });
+      document.getElementById('toStep2').onclick = () => {
+        let ok = true;
+        checks.querySelectorAll('.check').forEach(c => {
+          const bad = !c.querySelector('input').checked;
+          c.classList.remove('err'); void c.offsetWidth;
+          c.classList.toggle('err', bad);
+          if (bad) ok = false;
+        });
+        if (ok) setStep(2);
+      };
+    }
+
+    if (state.step === 2) {
+      view.innerHTML = `
+        <div class="cart-layout">
+          <form class="panel" id="contactForm" novalidate>
+            <h3 style="font-size:32px">Контактные данные</h3>
+            <p class="muted" style="margin-top:6px">Мастер свяжется с вами, чтобы уточнить детали, сроки изготовления и стоимость доставки.</p>
+            <div class="form">
+              <div class="form-row">
+                ${field('name', 'Имя', 'text', true, 'autocomplete="name"')}
+                ${field('phone', 'Номер телефона', 'tel', true, 'autocomplete="tel" inputmode="tel"')}
+              </div>
+              ${field('email', 'Адрес электронной почты', 'email', true, 'autocomplete="email"')}
+              <div>
+                <div class="opt-label" style="margin:8px 0 10px">Способ получения</div>
+                <div class="radio-cards">
+                  <label class="radio-card"><input type="radio" name="delivery" value="Доставка" checked><b>Доставка</b><span>по Москве и Московской области</span></label>
+                  <label class="radio-card"><input type="radio" name="delivery" value="Самовывоз"><b>Самовывоз</b><span>Михнево, ул. Донбасская, 75</span></label>
+                </div>
+              </div>
+              <div id="addrWrap">${field('address', 'Адрес доставки', 'text', true, 'autocomplete="street-address"')}</div>
+              ${field('comment', 'Комментарий к заказу (монтаж, сроки, пожелания)', 'textarea')}
+              <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
+                <button type="button" class="btn btn-outline" id="back1">Назад</button>
+                <button type="submit" class="btn btn-dark" style="flex:1">Продолжить ${ICON.arrow}</button>
+              </div>
+            </div>
+          </form>
+          ${summary(`<div class="panel" style="padding:0;border:0">${lines(false)}</div>`)}
+        </div>`;
+      const f = document.getElementById('contactForm');
+      Object.entries(state.contact).forEach(([k, v]) => {
+        const el = f.elements[k];
+        if (!el) return;
+        if (el instanceof RadioNodeList) el.value = v; else el.value = v;
+      });
+      const syncAddr = () => {
+        const pickup = f.elements.delivery.value === 'Самовывоз';
+        const wrap = document.getElementById('addrWrap');
+        wrap.style.display = pickup ? 'none' : '';
+        f.elements.address.required = !pickup;
+      };
+      f.addEventListener('change', syncAddr);
+      syncAddr();
+      document.getElementById('back1').onclick = () => { save(f); setStep(1); };
+      f.addEventListener('submit', e => {
+        e.preventDefault();
+        if (!validateForm(f)) return;
+        save(f);
+        setStep(3);
+      });
+    }
+
+    if (state.step === 3) {
+      const c = state.contact;
+      view.innerHTML = `
+        <div class="cart-layout">
+          <div class="panel">
+            <h3 style="font-size:32px">Проверьте заказ</h3>
+            <p class="muted" style="margin:6px 0 10px">Убедитесь, что всё верно, и подтвердите заказ.</p>
+            <div class="review-block"><h4>Товары <button data-goto="1">Изменить</button></h4>${lines(false)}</div>
+            <div class="review-block"><h4>Получатель <button data-goto="2">Изменить</button></h4>
+              <dl class="kv">
+                <dt>Имя</dt><dd>${esc(c.name)}</dd>
+                <dt>Телефон</dt><dd>${esc(c.phone)}</dd>
+                <dt>Email</dt><dd>${esc(c.email)}</dd>
+                <dt>Получение</dt><dd>${esc(c.delivery)}</dd>
+                ${c.delivery === 'Доставка' ? `<dt>Адрес доставки</dt><dd>${esc(c.address)}</dd>` : `<dt>Адрес самовывоза</dt><dd>${SITE.address}</dd>`}
+                ${c.comment ? `<dt>Комментарий</dt><dd>${esc(c.comment)}</dd>` : ''}
+              </dl>
+            </div>
+            <div class="review-block"><h4>Согласия</h4>
+              <p style="font-size:14px">✓ С условиями <a href="oferta.html" target="_blank" style="text-decoration:underline">публичной оферты</a> согласен(на)<br>✓ Согласие на <a href="politika.html" target="_blank" style="text-decoration:underline">обработку персональных данных</a> дано</p>
+            </div>
+          </div>
+          ${summary(`
+            <button class="btn btn-green btn-block" id="confirm">Подтвердить заказ ${ICON.check.replace('<svg', '<svg width="18" height="18"')}</button>
+            <button class="btn btn-outline btn-block" style="margin-top:10px" data-goto="2">Назад</button>
+            <p class="note" style="margin-top:12px;text-align:center">Оплата — после подтверждения заказа мастером: предоплата при запуске в производство, доплата по готовности.</p>`)}
+        </div>`;
+      document.getElementById('confirm').onclick = confirmOrder;
+    }
+
+    if (state.step === 4) {
+      view.innerHTML = `
+        <div class="panel reveal" style="max-width:640px;margin:0 auto">
+          ${successHTML('Заказ подтверждён!', `Номер заказа: <span class="order-num">${state.orderNo}</span><br><br>${
+            state.how === 'mailto'
+              ? 'Мы открыли письмо с деталями заказа — отправьте его, чтобы мастер получил заявку. Если письмо не открылось, позвоните: <a href="' + SITE.phoneHref + '" style="text-decoration:underline">' + SITE.phone + '</a>.'
+              : 'Мастер свяжется с вами в ближайшее время, чтобы согласовать сроки, доставку и оплату.'}`)}
+          <div class="hero-buttons" style="margin-top:10px"><a class="btn btn-dark" href="catalog.html">Продолжить покупки</a><a class="btn btn-outline" href="index.html">На главную</a></div>
+        </div>`;
+      document.getElementById('stepper').style.display = 'none';
+    }
+    initReveal(view);
+  }
+
+  function save(f) {
+    const d = Object.fromEntries(new FormData(f));
+    state.contact = d;
+    try { sessionStorage.setItem(ORDER_KEY, JSON.stringify(d)); } catch {}
+  }
+
+  async function confirmOrder() {
+    const btn = document.getElementById('confirm');
+    btn.disabled = true;
+    const items = Cart.get();
+    const c = state.contact;
+    const orderNo = 'EF-' + Date.now().toString().slice(-6);
+    const text = [
+      `Заказ ${orderNo} с сайта`, '',
+      ...items.map((i, n) => `${n + 1}. ${product(i.id).name}${i.option ? ' (' + i.option + ')' : ''} — ${i.qty} шт. × ${rub(i.price)} = ${rub(i.qty * i.price)}`),
+      '', `Итого: ${rub(Cart.total())}`, '',
+      `Имя: ${c.name}`, `Телефон: ${c.phone}`, `Email: ${c.email}`,
+      `Получение: ${c.delivery}`, c.delivery === 'Доставка' ? `Адрес доставки: ${c.address}` : '',
+      c.comment ? `Комментарий: ${c.comment}` : '', '',
+      'Клиент согласился с публичной офертой и дал согласие на обработку персональных данных.'
+    ].filter(l => l !== null).join('\n');
+    try {
+      state.how = await sendLead(`Заказ ${orderNo} — ${c.name}`, {
+        type: 'order', orderNo, ...c, total: Cart.total(),
+        items: items.map(i => ({ name: product(i.id).name, option: i.option, qty: i.qty, price: i.price }))
+      }, text);
+      state.orderNo = orderNo;
+      Cart.set([]);
+      setStep(4);
+    } catch {
+      btn.disabled = false;
+      alert('Не удалось отправить заказ. Пожалуйста, позвоните нам: ' + SITE.phone);
+    }
+  }
+
+  view.addEventListener('click', e => {
+    const g = e.target.closest('[data-goto]');
+    if (g) { setStep(+g.dataset.goto); return; }
+    const a = e.target.closest('[data-act]');
+    if (!a) return;
+    const key = a.closest('.line-item').dataset.key;
+    let items = Cart.get();
+    const it = items.find(i => i.key === key);
+    if (a.dataset.act === 'plus') it.qty++;
+    if (a.dataset.act === 'minus') it.qty = Math.max(1, it.qty - 1);
+    if (a.dataset.act === 'remove') items = items.filter(i => i.key !== key);
+    Cart.set(items);
+    render();
+  });
+
+  setStep(1);
+</script>
+</body>
+</html>
