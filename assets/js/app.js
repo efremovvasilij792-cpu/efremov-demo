@@ -169,20 +169,22 @@
   window.openModal = modal;
 
   /* ---------- Отправка заявок ---------- */
+  // Сначала отправляем через order.php на хостинге (почта + Telegram).
+  // Если его нет (демо на GitHub, локальный просмотр) или он не ответил — открываем готовое письмо.
   async function sendLead(subject, data, text) {
-    const payload = { subject, ...data, site: location.origin, date: new Date().toLocaleString('ru-RU') };
-    try {
-      const log = JSON.parse(localStorage.getItem('efremov_leads') || '[]');
-      log.push(payload);
-      localStorage.setItem('efremov_leads', JSON.stringify(log.slice(-20)));
-    } catch {}
     if (S.orderEndpoint) {
-      const r = await fetch(S.orderEndpoint, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!r.ok) throw new Error('send failed');
-      return 'sent';
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 10000);
+        const r = await fetch(S.orderEndpoint, {
+          method: 'POST', signal: ctrl.signal,
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ subject, text, phone: data.phone, email: data.email, website: '' })
+        });
+        clearTimeout(timer);
+        const res = await r.json();
+        if (r.ok && res.ok) return 'sent';
+      } catch {}
     }
     location.href = `mailto:${S.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
     return 'mailto';

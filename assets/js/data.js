@@ -16,10 +16,9 @@ window.SITE = {
     vk: 'https://vk.ru/pergola2023',
     avito: 'https://www.avito.ru/brands/i121839620/all?sellerId=93ffb4352f5f144061d53e659281e48b'
   },
-  /* Куда уходят заказы и заявки.
-     Если endpoint пустой — сайт открывает готовое письмо на email выше.
-     Можно указать адрес сервиса форм (Formspree, Getform, свой сервер) — тогда заявка уйдёт POST-запросом в JSON. */
-  orderEndpoint: ''
+  /* Куда уходят заказы и заявки: order.php на хостинге пересылает их на почту и в Telegram.
+     Если order.php недоступен (демо на GitHub), сайт открывает готовое письмо на email выше. */
+  orderEndpoint: 'order.php'
 };
 
 const COLORS = {
