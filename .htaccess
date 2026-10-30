@@ -1,0 +1,37 @@
+# Защита сайта на хостинге (Apache: Beget, Timeweb, REG.RU и т.п.)
+
+# Не показывать список файлов в папках
+Options -Indexes
+
+# Служебные файлы и рабочие материалы не отдаём никому:
+# .git и прочие скрытые файлы, настройки с токеном и их резервные копии,
+# заметки, черновики _*.html, таблицы, видео и фото-референсы
+<FilesMatch "(?i)(^\.|^config(\.example)?\.php|\.(bak|old|orig|swp|save|log|sql|zip|xlsx|xls|csv|md|mp4)$|~$|^_.*\.html$|^(?!robots\.txt$).*\.txt$|референс|продукт фото)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Папки, которые не должны открываться по ссылке
+RedirectMatch 404 (?i)/(\.git|\.claude|лиды)(/|$)
+
+# Защитные заголовки
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+</IfModule>
+
+# Когда на хостинге включён SSL (https), уберите # у строк ниже:
+# всех посетителей переведёт на https, а браузеры запомнят, что сайт только защищённый
+# RewriteEngine On
+# RewriteCond %{HTTPS} !=on
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# <IfModule mod_headers.c>
+#   Header always set Strict-Transport-Security "max-age=31536000"
+# </IfModule>
